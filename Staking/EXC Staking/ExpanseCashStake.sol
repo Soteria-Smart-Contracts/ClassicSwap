@@ -1,10 +1,10 @@
 pragma solidity ^0.8.4;
 
 
-contract EXCstakefarm{
-    address EXC;
+contract CLSstakefarm{
+    address CLS;
     address Creator;
-    uint256 ContractEXCBalance;
+    
     uint OnOff;
     uint256 Multiplier;
     
@@ -13,24 +13,24 @@ contract EXCstakefarm{
     //event declarations
     
     mapping(address => uint256) Staked;
-    mapping(address => uint256) ClaimableEXC;
+    mapping(address => uint256) ClaimableCLS;
     mapping(address => uint256) BlockDeposit;
     
-    constructor(address payable _EXC, uint256 _Multiplier){
+    constructor(address payable _CLS, uint256 _Multiplier){
         Creator = msg.sender;
-        EXC = _EXC;
+        CLS = _CLS;
         Multiplier = _Multiplier;
     }
     
     function Stake(uint256 _amount) public payable returns(bool success){
-        require (ERC20(EXC).balanceOf(msg.sender) >= _amount);
-        require (ERC20(EXC).allowance(msg.sender,(address(this))) >= _amount);
+        require (ERC20(CLS).balanceOf(msg.sender) >= _amount);
+        require (ERC20(CLS).allowance(msg.sender,(address(this))) >= _amount);
         require (OnOff == 1);
         
-        ERC20(EXC).transferFrom(msg.sender, (address(this)), _amount);
+        ERC20(CLS).transferFrom(msg.sender, (address(this)), _amount);
         
         if (Staked[msg.sender] > 0){
-            ClaimableEXC[msg.sender] = ClaimableEXC[msg.sender]+UnclaimedEXC(msg.sender);
+            ClaimableCLS[msg.sender] = ClaimableCLS[msg.sender]+UnclaimedCLS(msg.sender);
         }
         Staked[msg.sender] = Staked[msg.sender]+(_amount);
         BlockDeposit[msg.sender] = block.number;
@@ -41,17 +41,17 @@ contract EXCstakefarm{
         
     }
     
-    function ClaimEXC() public payable returns(bool success){
+    function ClaimCLS() public payable returns(bool success){
         require (Staked[msg.sender] > 0);
         require (OnOff == 1);
         
-        ClaimableEXC[msg.sender] = UnclaimedEXC(msg.sender);
+        ClaimableCLS[msg.sender] = UnclaimedCLS(msg.sender);
         
-        ERC20(EXC).Mint(msg.sender, ClaimableEXC[msg.sender]);
+        ERC20(CLS).Mint(msg.sender, ClaimableCLS[msg.sender]);
         
-        emit Withdraw(address(this),ClaimableEXC[msg.sender]);
+        emit Withdraw(address(this),ClaimableCLS[msg.sender]);
         
-        ClaimableEXC[msg.sender] = 0;
+        ClaimableCLS[msg.sender] = 0;
         BlockDeposit[msg.sender] = block.number;
         return success;
     }
@@ -60,14 +60,14 @@ contract EXCstakefarm{
         require (Staked[msg.sender] > 0);
         require (Staked[msg.sender] >= _amount);
         
-        ClaimableEXC[msg.sender] = UnclaimedEXC(msg.sender);
+        ClaimableCLS[msg.sender] = UnclaimedCLS(msg.sender);
         
-        ERC20(EXC).Mint(msg.sender, ClaimableEXC[msg.sender]);
-        ERC20(EXC).transfer(msg.sender, _amount);
+        ERC20(CLS).Mint(msg.sender, ClaimableCLS[msg.sender]);
+        ERC20(CLS).transfer(msg.sender, _amount);
         
         Staked[msg.sender] = Staked[msg.sender]-(_amount);
         BlockDeposit[msg.sender] = block.number;
-        ClaimableEXC[msg.sender] = 0;
+        ClaimableCLS[msg.sender] = 0;
         
         return success;
     }
@@ -76,13 +76,13 @@ contract EXCstakefarm{
         require (Staked[msg.sender] > 0);
         require (OnOff == 1);
         
-        ClaimableEXC[msg.sender] = UnclaimedEXC(msg.sender);
+        ClaimableCLS[msg.sender] = UnclaimedCLS(msg.sender);
         
-        ERC20(EXC).Mint(address(this),ClaimableEXC[msg.sender]);
+        ERC20(CLS).Mint(address(this),ClaimableCLS[msg.sender]);
         
-        Staked[msg.sender] = Staked[msg.sender]+(ClaimableEXC[msg.sender]);
+        Staked[msg.sender] = Staked[msg.sender]+(ClaimableCLS[msg.sender]);
         BlockDeposit[msg.sender] = block.number;
-        ClaimableEXC[msg.sender] = 0;
+        ClaimableCLS[msg.sender] = 0;
         
         return success;
     }
@@ -90,16 +90,16 @@ contract EXCstakefarm{
     
     //view functions
     
-    function StakedEXC(address Staker) public view returns(uint256){
+    function StakedCLS(address Staker) public view returns(uint256){
         return Staked[Staker];
     }
     
-    function UnclaimedEXC(address Staker) public view returns(uint256){
-        return ClaimableEXC[Staker]+((((Staked[Staker]*(12594*(block.number-(BlockDeposit[Staker]))))/10000000000)/1000)*Multiplier);
+    function UnclaimedCLS(address Staker) public view returns(uint256){
+        return ClaimableCLS[Staker]+((((Staked[Staker]*(5770*(block.number-(BlockDeposit[Staker]))))/10000000000)/1000)*Multiplier);
     }
     
     function TotalStaked()public view returns(uint256){
-        return ERC20(EXC).balanceOf(address(this));
+        return ERC20(CLS).balanceOf(address(this));
     }
     
     //Creator functions
