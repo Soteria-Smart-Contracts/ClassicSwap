@@ -150,7 +150,7 @@ contract ClassicSwap {
         SigAddress2 = _2;
         SigAddress3 = _3;
         
-        
+        Setup = 1;
         
         emit MultiSigSet(true);
         return(success);
@@ -199,7 +199,6 @@ contract ClassicSwap {
         
         if (Verify == true){
             Verified = true;
-            Setup = 1;
             emit MultiSigVerified(true);
         }
         
